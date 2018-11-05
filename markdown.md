@@ -7,14 +7,14 @@ November 3, 2018
 library(tidyverse)
 ```
 
-    ## -- Attaching packages ----------------------------- tidyverse 1.2.1 --
+    ## -- Attaching packages ----------------------------------------------- tidyverse 1.2.1 --
 
     ## v ggplot2 3.0.0     v purrr   0.2.5
     ## v tibble  1.4.2     v dplyr   0.7.6
     ## v tidyr   0.8.1     v stringr 1.3.1
     ## v readr   1.1.1     v forcats 0.3.0
 
-    ## -- Conflicts -------------------------------- tidyverse_conflicts() --
+    ## -- Conflicts -------------------------------------------------- tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -55,9 +55,9 @@ library(data.table)
 
 ``` r
 library(ggplot2)
-conexp = data_frame(ID = list.files(path = "data", full.names = TRUE)) %>%
+conexp = data_frame(ID = list.files(path = "data")) %>%
   mutate(ID = as.character(ID)) 
-participants = function(filename) {read.csv(paste0("data", filename))} %>%
+participants <- function(filename) {read.csv(paste0("data", filename))} %>%
   fulldata = map_df(conexp$ID, participants) %>%
   tidydata = cbind(conexp, fulldata) %>%
   clean_names() %>%
@@ -66,5 +66,5 @@ participants = function(filename) {read.csv(paste0("data", filename))} %>%
   gather(key = week, value = obs, week_1:week_8) %>%
   mutate(week = str_replace(week, "week_", "")) %>%
   mutate(week = as.numeric(week)) %>%
-  ggplot2(data = tidydata, aes(x = week, y = obs, color = ID_arm)) + geom_point() + geom_line() + facet_grid(~arm) + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
+  ggplot2(data = tidydata, aes(x = week, y = obs, color = ID_arm)) + geom_point() + geom_line() + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
 ```
