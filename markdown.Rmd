@@ -12,13 +12,12 @@ library(janitor)
 library(dplyr)
 library(purrr)
 library(data.table)
-LF = list.files(pattern = "csv$")
-rbindlist(lapply(setNames(LF, LF), fread), idcol = "data")
-unnest(data)
-
-conexp = map(list.files(path = "data", full.names = TRUE), read.csv) 
-conexp
-   reduce(rbind)
-conexp
+conexp = data_frame(ID = list.files(path = "data", full.names = TRUE)) %>%
+  mutate(ID = as.character(ID)) 
+participants = function(filename) {read.csv(paste0("data", filename))} %>%
+fulldata = map_df(conexp$ID, participants) %>%
+tidydata = cbind(conexp, fulldata) %>%
+  clean_names()
+tidydata
 ```
 
