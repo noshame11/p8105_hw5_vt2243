@@ -1,0 +1,24 @@
+---
+title: "Untitled"
+author: "Vincent Tam"
+date: "November 3, 2018"
+output: github_document
+---
+
+```{r setup}
+library(tidyverse)
+library(rvest)
+library(janitor)
+library(dplyr)
+library(purrr)
+library(data.table)
+LF = list.files(pattern = "csv$")
+rbindlist(lapply(setNames(LF, LF), fread), idcol = "data")
+unnest(data)
+
+conexp = map(list.files(path = "data", full.names = TRUE), read.csv) 
+conexp
+   reduce(rbind)
+conexp
+```
+
