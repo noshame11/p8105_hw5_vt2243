@@ -17,7 +17,11 @@ conexp = data_frame(ID = list.files(path = "data", full.names = TRUE)) %>%
 participants = function(filename) {read.csv(paste0("data", filename))} %>%
 fulldata = map_df(conexp$ID, participants) %>%
 tidydata = cbind(conexp, fulldata) %>%
-  clean_names()
+  clean_names() %>%
+  mutate(ID_arm = str_replace(ID_arm, ".csv", ""))
+  separate()
+  gather()
+  mutate()
 tidydata
 ```
 
