@@ -12,16 +12,18 @@ library(janitor)
 library(dplyr)
 library(purrr)
 library(data.table)
+library(ggplot2)
 conexp = data_frame(ID = list.files(path = "data", full.names = TRUE)) %>%
   mutate(ID = as.character(ID)) 
 participants = function(filename) {read.csv(paste0("data", filename))} %>%
-fulldata = map_df(conexp$ID, participants) %>%
-tidydata = cbind(conexp, fulldata) %>%
+  fulldata = map_df(conexp$ID, participants) %>%
+  tidydata = cbind(conexp, fulldata) %>%
   clean_names() %>%
-  mutate(ID_arm = str_replace(ID_arm, ".csv", ""))
-  separate()
-  gather()
-  mutate()
-tidydata
+  mutate(ID_arm = str_replace(ID_arm, ".csv", "")) %>%
+  separate(ID_arm, into = c("arm", "ID"), sep = "") %>%
+  gather(key = week, value = obs, week_1:week_8) %>%
+  mutate(week = str_replace(week, "week_", "")) %>%
+  mutate(week = as.numeric(week)) %>%
+  ggplot2(data = tidydata, aes(x = week, y = obs, color = ID_arm)) + geom_point() + geom_line() + facet_grid(~arm) + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
 ```
 

@@ -54,36 +54,17 @@ library(data.table)
     ##     transpose
 
 ``` r
-LF = list.files(pattern="csv$")
-rbindlist(lapply(setNames(LF, LF), fread), idcol = "data")
+library(ggplot2)
+conexp = data_frame(ID = list.files(path = "data", full.names = TRUE)) %>%
+  mutate(ID = as.character(ID)) 
+participants = function(filename) {read.csv(paste0("data", filename))} %>%
+  fulldata = map_df(conexp$ID, participants) %>%
+  tidydata = cbind(conexp, fulldata) %>%
+  clean_names() %>%
+  mutate(ID_arm = str_replace(ID_arm, ".csv", "")) %>%
+  separate(ID_arm, into = c("arm", "ID"), sep = "") %>%
+  gather(key = week, value = obs, week_1:week_8) %>%
+  mutate(week = str_replace(week, "week_", "")) %>%
+  mutate(week = as.numeric(week)) %>%
+  ggplot2(data = tidydata, aes(x = week, y = obs, color = ID_arm)) + geom_point() + geom_line() + facet_grid(~arm) + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
 ```
-
-    ## Null data.table (0 rows and 0 cols)
-
-``` r
-conexp = map(list.files(path = "data", full.names = TRUE), read.csv) %>%
-   reduce(rbind)
-conexp
-```
-
-    ##    week_1 week_2 week_3 week_4 week_5 week_6 week_7 week_8
-    ## 1    0.20  -1.31   0.66   1.96   0.23   1.09   0.05   1.94
-    ## 2    1.13  -0.88   1.07   0.17  -0.83  -0.31   1.58   0.44
-    ## 3    1.77   3.11   2.22   3.26   3.31   0.89   1.88   1.01
-    ## 4    1.04   3.66   1.22   2.33   1.47   2.70   1.87   1.66
-    ## 5    0.47  -0.58  -0.09  -1.37  -0.32  -2.17   0.45   0.48
-    ## 6    2.37   2.50   1.59  -0.16   2.08   3.07   0.78   2.35
-    ## 7    0.03   1.21   1.13   0.64   0.49  -0.12  -0.07   0.46
-    ## 8   -0.08   1.42   0.09   0.36   1.18  -1.16   0.33  -0.44
-    ## 9    0.08   1.24   1.44   0.41   0.95   2.75   0.30   0.03
-    ## 10   2.14   1.15   2.52   3.44   4.26   0.97   2.73  -0.53
-    ## 11   3.05   3.67   4.84   5.80   6.33   5.46   6.38   5.91
-    ## 12  -0.84   2.63   1.64   2.58   1.24   2.32   3.11   3.78
-    ## 13   2.15   2.08   1.82   2.84   3.36   3.61   3.37   3.74
-    ## 14  -0.62   2.54   3.78   2.73   4.49   5.82   6.00   6.49
-    ## 15   0.70   3.33   5.34   5.57   6.90   6.66   6.24   6.95
-    ## 16   3.73   4.08   5.40   6.41   4.87   6.09   7.66   5.83
-    ## 17   1.18   2.35   1.23   1.17   2.02   1.61   3.13   4.88
-    ## 18   1.37   1.43   1.84   3.60   3.80   4.72   4.68   5.70
-    ## 19  -0.40   1.08   2.66   2.70   2.80   2.64   3.51   3.27
-    ## 20   1.09   2.80   2.80   4.30   2.25   6.57   6.09   4.64
