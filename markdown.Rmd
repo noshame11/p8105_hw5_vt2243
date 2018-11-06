@@ -34,12 +34,28 @@ X =
 ## summarize within cities to obtain total number of homicides and unsolved homicides
 ## purrr to subset using nest
 ## using MAP to loop in total homicides and unsolved homicides within each unique city/state
-homicides = 
+dispo = 
   X %>%
-  select(city_state, disposition)
+  select(city_state, disposition) 
+homicides =
+  dispo %>%
+  filter(disposition == "Closed by arrest") %>%
+  group_by(city_state) %>%
+  summarize(total_solved = n())
+unsolved =
+  dispo %>%
+  filter(disposition == "Closed without arrest" | "Open/No arrest") %>%
+  group_by(city_state) %>%
+  summarize(total_unsolved = n())
+unsolved
+
+homicides
+
 group_x = 
   homicides  %>%
-  group_by(city_state) 
+ 
+  
+group_x
 colnames(homicides)
 colnames(group_x)
 
