@@ -14,16 +14,21 @@ library(purrr)
 library(data.table)
 library(ggplot2)
 conexp = data_frame(ID = list.files(path = "data")) %>%
-  mutate(ID = as.character(ID)) 
-participants <- function(filename) {read.csv(paste0("data", filename))} %>%
-  fulldata = map_df(conexp$ID, participants) %>%
-  tidydata = cbind(conexp, fulldata) %>%
+  mutate(ID = as.character(ID)) %>%
+  mutate(ID = str_replace(ID, ".csv", ""))
+data = map(list.files(path = "data", full.names = TRUE), read_csv, col_names = TRUE) 
+data = bind_rows(data, .id = NULL)
+complete = bind_cols(conexp, data) %>%
+  separate(ID, into = c("arm", "ID"), sep = "_") %>%
   clean_names() %>%
-  mutate(ID_arm = str_replace(ID_arm, ".csv", "")) %>%
-  separate(ID_arm, into = c("arm", "ID"), sep = "") %>%
   gather(key = week, value = obs, week_1:week_8) %>%
   mutate(week = str_replace(week, "week_", "")) %>%
-  mutate(week = as.numeric(week)) %>%
-  ggplot2(data = tidydata, aes(x = week, y = obs, color = ID_arm)) + geom_point() + geom_line() + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
+  mutate(week = as.numeric(week))
+ggplot(data = complete, aes(x = week, y = obs, color = arm)) + geom_point() + geom_line() + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
+
+
+ 
+  
+  
 ```
 
