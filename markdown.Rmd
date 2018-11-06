@@ -52,16 +52,15 @@ baltimore_total =
   dispo %>%
   filter(city_state == "Baltimore_MD") %>%
   summarize(total_homicide = n())
-baltimore_total
 baltimore_solved =
   homicides %>%
-  filter(city_state == "Baltimore_MD")
-baltimore_solved
+  filter(city_state == "Baltimore_MD") %>%
+  select(total_solved)
 baltimore_unsolved = 
   unsolved %>%
-  filter(city_state == "Baltimore_MD")
-baltimore_unsolved
-
+  filter(city_state == "Baltimore_MD") %>%
+  select(total_unsolved)
+prop.test(baltimore_unsolved, baltimore_total)
 
 
 ```
