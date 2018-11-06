@@ -24,8 +24,26 @@ gather(complete, key = week, value = obs, week1:week8) %>%
 ggplot(aes(week, obs, color = armid, group = armid)) + geom_point() + geom_line() + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
 ```
 ```{r Problem 2}
+library(dplyr)
+library(janitor)
+library(purrr)
 X <- read.csv(url("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"))
-X
-colnames(X)
+X = 
+  X %>%
+  unite(city_state, city, state)
+## summarize within cities to obtain total number of homicides and unsolved homicides
+## purrr to subset using nest
+## using MAP to loop in total homicides and unsolved homicides within each unique city/state
+homicides = 
+  X %>%
+  select(city_state, disposition)
+group_x = 
+  homicides  %>%
+  group_by(city_state) 
+colnames(homicides)
+colnames(group_x)
+
+
 ```
+
 
