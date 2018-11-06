@@ -15,20 +15,19 @@ library(data.table)
 library(ggplot2)
 conexp = data_frame(ID = list.files(path = "data")) %>%
   mutate(ID = as.character(ID)) %>%
-  mutate(ID = str_replace(ID, ".csv", ""))
+  mutate(ID = str_replace(ID, ".csv", "")) 
 data = map(list.files(path = "data", full.names = TRUE), read_csv, col_names = TRUE) 
+names(data) <- gsub("\\_", "", names(data))
 data = bind_rows(data, .id = NULL)
 complete = bind_cols(conexp, data) %>%
   separate(ID, into = c("arm", "ID"), sep = "_") %>%
-  clean_names() %>%
-  gather(key = week, value = obs, week_1:week_8) %>%
-  mutate(week = str_replace(week, "week_", "")) %>%
-  mutate(week = as.numeric(week))
-ggplot(data = complete, aes(x = week, y = obs, color = arm)) + geom_point() + geom_line() + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
+  clean_names() 
+complete
+ggplot(data = complete, aes(x = week, y = obs, color = arm, ID)) + geom_point() + geom_line() + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
+##    gather(key = week, value = obs, week_1:week_8) 
 
-
- 
-  
-  
+##  mutate(week = str_replace(week, "week_", "")) %>%
+##  mutate(week = as.numeric(week))
+complete
+ggplot(data = complete, aes(x = week, y = obs, color = arm, ID)) + geom_point() + geom_line() + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
 ```
-

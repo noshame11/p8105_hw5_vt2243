@@ -290,10 +290,29 @@ data = bind_rows(data, .id = NULL)
 complete = bind_cols(conexp, data) %>%
   separate(ID, into = c("arm", "ID"), sep = "_") %>%
   clean_names() %>%
-  gather(key = week, value = obs, week_1:week_8) %>%
-  mutate(week = str_replace(week, "week_", "")) %>%
-  mutate(week = as.numeric(week))
-ggplot(data = complete, aes(x = week, y = obs, color = arm)) + geom_point() + geom_line() + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
+  gather(key = week, value = obs, week_1:week_8) 
+##  mutate(week = str_replace(week, "week_", "")) %>%
+##  mutate(week = as.numeric(week))
+complete
+```
+
+    ## # A tibble: 160 x 4
+    ##    arm   id    week     obs
+    ##    <chr> <chr> <chr>  <dbl>
+    ##  1 con   01    week_1  0.2 
+    ##  2 con   02    week_1  1.13
+    ##  3 con   03    week_1  1.77
+    ##  4 con   04    week_1  1.04
+    ##  5 con   05    week_1  0.47
+    ##  6 con   06    week_1  2.37
+    ##  7 con   07    week_1  0.03
+    ##  8 con   08    week_1 -0.08
+    ##  9 con   09    week_1  0.08
+    ## 10 con   10    week_1  2.14
+    ## # ... with 150 more rows
+
+``` r
+ggplot(data = complete, aes(x = week, y = obs, color = arm, ID)) + geom_point() + geom_line() + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
 ```
 
 ![](markdown_files/figure-markdown_github/setup-1.png)
