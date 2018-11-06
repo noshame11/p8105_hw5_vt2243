@@ -40,19 +40,50 @@ X =
 ## summarize within cities to obtain total number of homicides and unsolved homicides
 ## purrr to subset using nest
 ## using MAP to loop in total homicides and unsolved homicides within each unique city/state
-homicides = 
+dispo = 
   X %>%
-  select(city_state, disposition)
-group_x = 
-  homicides  %>%
-  group_by(city_state) 
-colnames(homicides)
+  select(city_state, disposition) 
+homicides =
+  dispo %>%
+  filter(disposition == "Closed by arrest") %>%
+  group_by(city_state) %>%
+  summarize(total_solved = n())
+unsolved =
+  dispo %>%
+  filter(disposition == "Closed without arrest" | disposition == "Open/No arrest") %>%
+  group_by(city_state) %>%
+  summarize(total_unsolved = n())
+## prop test for MD
+baltimore_total =
+  dispo %>%
+  filter(city_state == "Baltimore_MD") %>%
+  summarize(total_homicide = n())
+baltimore_total
 ```
 
-    ## [1] "city_state"  "disposition"
+    ##   total_homicide
+    ## 1           2827
 
 ``` r
-colnames(group_x)
+baltimore_solved =
+  homicides %>%
+  filter(city_state == "Baltimore_MD")
+baltimore_solved
 ```
 
-    ## [1] "city_state"  "disposition"
+    ## # A tibble: 1 x 2
+    ##   city_state   total_solved
+    ##   <chr>               <int>
+    ## 1 Baltimore_MD         1002
+
+``` r
+baltimore_unsolved = 
+  unsolved %>%
+  filter(city_state == "Baltimore_MD")
+baltimore_unsolved
+```
+
+    ## # A tibble: 1 x 2
+    ##   city_state   total_unsolved
+    ##   <chr>                 <int>
+    ## 1 Baltimore_MD           1825
