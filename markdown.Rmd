@@ -23,3 +23,9 @@ complete
 gather(complete, key = week, value = obs, week1:week8) %>%
 ggplot(aes(week, obs, color = armid, group = armid)) + geom_point() + geom_line() + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
 ```
+```{r Problem 2}
+X <- read.csv(url("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"))
+X
+colnames(X)
+```
+
