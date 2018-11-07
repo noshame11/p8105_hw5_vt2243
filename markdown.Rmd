@@ -27,6 +27,8 @@ ggplot(aes(week, obs, color = armid, group = armid)) + geom_point() + geom_line(
 library(dplyr)
 library(janitor)
 library(purrr)
+library(broom)
+library(reshape)
 X <- read.csv(url("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"))
 X = 
   X %>%
@@ -37,43 +39,75 @@ X =
 dispo = 
   X %>%
   select(city_state, disposition) 
+total =
+  dispo %>%
+  group_by(city_state) %>%
+  summarize(total_homicide = n())
 homicides =
   dispo %>%
   filter(disposition == "Closed by arrest") %>%
   group_by(city_state) %>%
   summarize(total_solved = n())
-homicides
 unsolved =
   dispo %>%
   filter(disposition == "Closed without arrest" | disposition == "Open/No arrest") %>%
   group_by(city_state) %>%
   summarize(total_unsolved = n())
-unsolved
 ## prop test for MD
 baltimore_total =
   dispo %>%
   filter(city_state == "Baltimore_MD") 
-total = count(baltimore_total)
-total
+total_baltimore = count(baltimore_total)
 baltimore_solved =
   homicides %>%
   filter(city_state == "Baltimore_MD")
-baltimore_solved
 baltimore_unsolved = 
   unsolved %>%
   filter(city_state == "Baltimore_MD") 
-baltimore_unsolved
 baltimore_homicides = 
-  merge(baltimore_unsolved, total)
-baltimore_homicides
-length(total)
-length(baltimore_unsolved)
-baltimore_unsolved
-total
+  merge(baltimore_unsolved, total_baltimore)
 prop.test(baltimore_homicides$total_unsolved, baltimore_homicides$n)
-baltimore_total
-baltimore_unsolved
+## prop.test = unsolved/total
+complete_table = 
+  merge_recurse(list(total, unsolved, homicides)) 
+str(complete_table)
 
+unnest(complete_table)
+complete_table =
+  complete_table %>%
+  as.tibble() %>%
+  flatten_dbl(total_homicide)
+
+  
+  transform(complete_table, total_homicide = as.numeric(total_homicide)) %>%
+  select(city_state, total_solved, total_unsolved, total_homicide) 
+complete_homicidetable
+length(complete_homicidetable)
+complete_homicidetable %>%
+  map2(total_unsolved, total_homicide, prop.test)
+  
+  mutate(prob = map2(total_unsolved, total_homicide, prop.table),
+         pval = map(prob ~ .x[["p.value"]]), 
+         CI = map(prob ~ as.numeric(.x[["conf.int"]])))
+  
+as.tibble(complete_homicidetable)
+names(complete_homicidetable)
+
+  
+complete_homicidetable
+  
+
+res <- df %>%
+        mutate(newcol = map2(Success, N, prop.test), 
+            pval = map_dbl(newcol, ~ .x[["p.value"]]), 
+            CI = map(newcol, ~ as.numeric(.x[["conf.int"]]))) %>% 
+            select(-newcol) 
+res <- unnest()
+## need broom
+analysis <- df %>%
+  set_names(c("x","n")) %>% 
+  mutate(result = pmap(., prop.test)) %>% 
+  mutate(result = map(result, tidy))
 ```
 
 
