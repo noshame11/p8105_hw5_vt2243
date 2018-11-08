@@ -29,6 +29,8 @@ library(janitor)
 library(purrr)
 library(broom)
 library(reshape)
+library(knitr)
+library(reshape2)
 hom_data <- read.csv(url("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"))
 hom_data = 
   hom_data %>%
@@ -58,36 +60,24 @@ baltimore_solved =
 baltimore_unsolved = 
   unsolved %>%
   filter(city_state == "Baltimore,MD") 
-baltimore_proptest = 
+baltimore_merged = 
   merge(baltimore_unsolved, baltimore_total)
-prop.test(baltimore_proptest$total_unsolved, baltimore_proptest$total)
+baltimore_proptest = 
+  prop.test(baltimore_merged$total_unsolved, baltimore_merged$total) %>%
+  tidy() %>%
+  select(conf.low, conf.high, estimate) 
+  kable(digits = 3)
+baltimore_proptest
 ## prop.test = unsolved/total
-complete_table = 
-  inner_join(total, unsolved, homicides, by = "city_state")
-complete_table[is.na(complete_table)] <- 0
-homicide_prop <- function(total.prop, unsolved.prop) {
- result = broom::tidy(prop.test(total.prop, unsolved.prop))
- tibble(
-   estimate = result %>% pull(estimate),
-   conf_low = result %>% pull(conf.low), 
-   conf_high = result %>% pull(conf.high))}
-complete_table = as.data.frame(complete_table)
-complete_table = as.tibble(complete_table)
-complete_table
-complete_table =
-  complete_table %>% 
-  mutate(homicide_prop = map2(unsolved, total, homicide_prop)) %>% 
-  unnest()
+partial_table = 
+  merge(dispo, unsolved, by = "city_state", na.rm = TRUE, all = T) %>%
+  filter(city_state != "Tulsa,AL")
+allcities_proptest = 
+  partial_table %>%
+  na.omit(partial_table) %>%
+  mutate(homicide_prop = map2(.x = total_unsolved, .y = total, ~prop.test(x = .x, n = .y)))
+allcities_proptest
 
-
-## unnest(complete_table)
-## complete_table =
-## complete_table %>%
-## as.tibble() %>%
-## flatten_dbl(total_homicide)
-
-## as.tibble(complete_homicidetable)
-## names(complete_homicidetable)
 ```
 
 
