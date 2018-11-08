@@ -29,44 +29,38 @@ library(janitor)
 library(purrr)
 library(broom)
 library(reshape)
-X <- read.csv(url("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"))
-X = 
-  X %>%
-  unite(city_state, city, state)
-## summarize within cities to obtain total number of homicides and unsolved homicides
-## purrr to subset using nest
-## using MAP to loop in total homicides and unsolved homicides within each unique city/state
+hom_data <- read.csv(url("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"))
+hom_data = 
+  hom_data %>%
+  mutate(city_state = str_c(city, ",", state))
 dispo = 
-  X %>%
-  select(city_state, disposition) 
-total =
-  dispo %>%
+  hom_data %>%
+  select(city_state, disposition) %>%
   group_by(city_state) %>%
-  summarize(total_homicide = n())
-homicides =
-  dispo %>%
+  summarize(total = n())
+solved =
+  hom_data %>%
   filter(disposition == "Closed by arrest") %>%
   group_by(city_state) %>%
   summarize(total_solved = n())
 unsolved =
-  dispo %>%
+  hom_data %>%
   filter(disposition == "Closed without arrest" | disposition == "Open/No arrest") %>%
   group_by(city_state) %>%
   summarize(total_unsolved = n())
-## prop test for MD
+## prop test for Baltimore, MD
 baltimore_total =
   dispo %>%
-  filter(city_state == "Baltimore_MD") 
-total_baltimore = count(baltimore_total)
+  filter(city_state == "Baltimore,MD") 
 baltimore_solved =
-  homicides %>%
-  filter(city_state == "Baltimore_MD")
+  solved %>%
+  filter(city_state == "Baltimore,MD")
 baltimore_unsolved = 
   unsolved %>%
-  filter(city_state == "Baltimore_MD") 
-baltimore_homicides = 
-  merge(baltimore_unsolved, total_baltimore)
-prop.test(baltimore_homicides$total_unsolved, baltimore_homicides$n)
+  filter(city_state == "Baltimore,MD") 
+baltimore_proptest = 
+  merge(baltimore_unsolved, baltimore_total)
+prop.test(baltimore_proptest$total_unsolved, baltimore_proptest$total)
 ## prop.test = unsolved/total
 complete_table = 
   inner_join(total, unsolved, homicides, by = "city_state")
@@ -77,6 +71,9 @@ homicide_prop <- function(total.prop, unsolved.prop) {
    estimate = result %>% pull(estimate),
    conf_low = result %>% pull(conf.low), 
    conf_high = result %>% pull(conf.high))}
+complete_table = as.data.frame(complete_table)
+complete_table = as.tibble(complete_table)
+complete_table
 complete_table =
   complete_table %>% 
   mutate(homicide_prop = map2(unsolved, total, homicide_prop)) %>% 
