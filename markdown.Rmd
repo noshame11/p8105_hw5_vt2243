@@ -77,11 +77,12 @@ homicide_prop <- function(total.prop, unsolved.prop) {
    estimate = result %>% pull(estimate),
    conf_low = result %>% pull(conf.low), 
    conf_high = result %>% pull(conf.high))}
+complete_table = as.data.frame(complete_table)
 complete_table =
   complete_table %>% 
   mutate(homicide_prop = map2(unsolved, total, homicide_prop)) %>% 
   unnest()
-complete_table
+
 
 ## unnest(complete_table)
 ## complete_table =
