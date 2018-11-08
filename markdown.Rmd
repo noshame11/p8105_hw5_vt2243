@@ -72,6 +72,7 @@ baltimore_proptest
 partial_table = 
   merge(dispo, unsolved, by = "city_state", na.rm = TRUE, all = T) %>%
   filter(city_state != "Tulsa,AL")
+partial_table = as.data.frame(partial_table)
 allcities_proptest = 
   partial_table %>%
   na.omit(partial_table) %>%
