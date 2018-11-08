@@ -71,45 +71,44 @@ prop.test(baltimore_homicides$total_unsolved, baltimore_homicides$n)
 complete_table = 
   merge_recurse(list(total, unsolved, homicides)) 
 complete_table[is.na(complete_table)] <- 0
-complete_table 
+homicide_prop <- function(total.prop, unsolved.prop) {
+ result = broom::tidy(prop.test(total.prop, unsolved.prop))
+ tibble(
+   estimate = result %>% pull(estimate),
+   conf_low = result %>% pull(conf.low), 
+   conf_high = result %>% pull(conf.high))}
+ 
 
-  complete_table %>%
-  mutate(newcol = map(total_unsolved, total_homicide, prop.table),
-         pval = map(newcol ~ .x[["p.value"]]), 
-         CI = map(newcol ~ as.numeric(.x[["conf.int"]])))
+ ## complete_table %>%
+##  mutate(newcol = map(total_unsolved, total_homicide, prop.table),
+##         pval = map(newcol ~ .x[["p.value"]]), 
+##         CI = map(newcol ~ as.numeric(.x[["conf.int"]])))
 
 
-unnest(complete_table)
-complete_table =
-  complete_table %>%
-  as.tibble() %>%
-  flatten_dbl(total_homicide)
-
-  
-
-complete_homicidetable %>%
-  map2(total_unsolved, total_homicide, prop.test)
-  
-  
-  
-as.tibble(complete_homicidetable)
-names(complete_homicidetable)
+##unnest(complete_table)
+##complete_table =
+##  complete_table %>%
+##  as.tibble() %>%
+##  flatten_dbl(total_homicide)
 
   
-complete_homicidetable
-  
 
-res <- df %>%
-        mutate(newcol = map2(Success, N, prop.test), 
-            pval = map_dbl(newcol, ~ .x[["p.value"]]), 
-            CI = map(newcol, ~ as.numeric(.x[["conf.int"]]))) %>% 
-            select(-newcol) 
-res <- unnest()
+##complete_homicidetable %>%
+##  map2(total_unsolved, total_homicide, prop.test)
+  
+  
+  
+## as.tibble(complete_homicidetable)
+## names(complete_homicidetable)
+
+  
+## res <- df %>%
+##
 ## need broom
-analysis <- df %>%
-  set_names(c("x","n")) %>% 
-  mutate(result = pmap(., prop.test)) %>% 
-  mutate(result = map(result, tidy))
+## analysis <- df %>%
+##  set_names(c("x","n")) %>% 
+##  mutate(result = pmap(., prop.test)) %>% 
+##  mutate(result = map(result, tidy))
 ```
 
 
