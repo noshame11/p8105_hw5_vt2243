@@ -65,7 +65,7 @@ baltimore_merged =
 baltimore_proptest = 
   prop.test(baltimore_merged$total_unsolved, baltimore_merged$total) %>%
   tidy() %>%
-  select(conf.low, conf.high, estimate) 
+  select(conf.low, conf.high, estimate) %>%
   kable(digits = 3)
 baltimore_proptest
 ## prop.test = unsolved/total
@@ -75,8 +75,21 @@ partial_table =
 allcities_proptest = 
   partial_table %>%
   na.omit(partial_table) %>%
-  mutate(homicide_prop = map2(.x = total_unsolved, .y = total, ~prop.test(x = .x, n = .y)))
+  mutate(homicide_prop = map2(.x = total_unsolved, .y = total, ~prop.test(x = .x, n = .y))) %>%
+  unnest()
 allcities_proptest
+plot_cities =
+  allcities_proptest %>% 
+  ggplot(aes(fct_reorder(city_state, estimate), estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
+  labs(
+    title = "Estimates and CIs for All Cities",
+    x = "City",
+    y = "Estimates"
+  )  +
+  theme(axis.text.x = element_text(angle = 90)) 
+plot_cities
 
 ```
 
