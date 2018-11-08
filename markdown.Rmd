@@ -69,7 +69,7 @@ baltimore_homicides =
 prop.test(baltimore_homicides$total_unsolved, baltimore_homicides$n)
 ## prop.test = unsolved/total
 complete_table = 
-  merge_recurse(list(total, unsolved, homicides)) 
+  inner_join(total, unsolved, homicides, by = "city_state")
 complete_table[is.na(complete_table)] <- 0
 homicide_prop <- function(total.prop, unsolved.prop) {
  result = broom::tidy(prop.test(total.prop, unsolved.prop))
@@ -77,7 +77,6 @@ homicide_prop <- function(total.prop, unsolved.prop) {
    estimate = result %>% pull(estimate),
    conf_low = result %>% pull(conf.low), 
    conf_high = result %>% pull(conf.high))}
-complete_table = as.data.frame(complete_table)
 complete_table =
   complete_table %>% 
   mutate(homicide_prop = map2(unsolved, total, homicide_prop)) %>% 
