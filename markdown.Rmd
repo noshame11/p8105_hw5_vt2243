@@ -77,38 +77,20 @@ homicide_prop <- function(total.prop, unsolved.prop) {
    estimate = result %>% pull(estimate),
    conf_low = result %>% pull(conf.low), 
    conf_high = result %>% pull(conf.high))}
- 
+complete_table =
+  complete_table %>% 
+  mutate(homicide_prop = map2(unsolved, total, homicide_prop)) %>% 
+  unnest()
+complete_table
 
- ## complete_table %>%
-##  mutate(newcol = map(total_unsolved, total_homicide, prop.table),
-##         pval = map(newcol ~ .x[["p.value"]]), 
-##         CI = map(newcol ~ as.numeric(.x[["conf.int"]])))
+## unnest(complete_table)
+## complete_table =
+## complete_table %>%
+## as.tibble() %>%
+## flatten_dbl(total_homicide)
 
-
-##unnest(complete_table)
-##complete_table =
-##  complete_table %>%
-##  as.tibble() %>%
-##  flatten_dbl(total_homicide)
-
-  
-
-##complete_homicidetable %>%
-##  map2(total_unsolved, total_homicide, prop.test)
-  
-  
-  
 ## as.tibble(complete_homicidetable)
 ## names(complete_homicidetable)
-
-  
-## res <- df %>%
-##
-## need broom
-## analysis <- df %>%
-##  set_names(c("x","n")) %>% 
-##  mutate(result = pmap(., prop.test)) %>% 
-##  mutate(result = map(result, tidy))
 ```
 
 

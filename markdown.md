@@ -116,8 +116,17 @@ homicide_prop <- function(total.prop, unsolved.prop) {
    estimate = result %>% pull(estimate),
    conf_low = result %>% pull(conf.low), 
    conf_high = result %>% pull(conf.high))}
- 
+ homicide_prop
+```
 
+    ## function(total.prop, unsolved.prop) {
+    ##  result = broom::tidy(prop.test(total.prop, unsolved.prop))
+    ##  tibble(
+    ##    estimate = result %>% pull(estimate),
+    ##    conf_low = result %>% pull(conf.low), 
+    ##    conf_high = result %>% pull(conf.high))}
+
+``` r
  ## complete_table %>%
 ##  mutate(newcol = map(total_unsolved, total_homicide, prop.table),
 ##         pval = map(newcol ~ .x[["p.value"]]), 
