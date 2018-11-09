@@ -31,6 +31,10 @@ library(broom)
 library(reshape)
 library(knitr)
 library(reshape2)
+library(tidyverse)
+library(ggplot2)
+library(revest)
+library(stringr)
 hom_data <- read.csv(url("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"))
 hom_data = 
   hom_data %>%
@@ -75,12 +79,29 @@ partial_table =
 partial_table = as.data.frame(partial_table)
 allcities_proptest = 
   partial_table %>%
-  na.omit(partial_table) %>%
-  mutate(homicide_prop = map2(.x = total_unsolved, .y = total, ~prop.test(x = .x, n = .y))) 
+  mutate(homicide_CI = map2(.x = total_unsolved, .y = total, ~prop.test(x = .x, n = .y)$conf.int)) %>%
+  mutate(homicide_estimate = map2(.x = total_unsolved, .y = total, ~prop.test(x = .x, n = .y)$estimate)) %>%
+  mutate(homicide_estimate = str_replace(homicide_estimate, "c(p = ", ""))
+
+  unnest()
+
+colnames(allcities_proptest)
+plot_cities = 
+  allcities_proptest %>%
+  ggplot(aes(city_state, homicide_estimate, color = city_state, group = city_state)) + geom_point() + geom_line()
+plot_cities
+
+na.omit(partial_table) %>%
+  
+broom::tidy(allcities_proptest) 
+  select(estimate, conf.low, conf.high) %>%
+  
+map_chr(allcities_proptest, typeof) %>% table()
+  unnest(allcities_proptest, homicide_prop, .drop = FALSE)
 allcities_proptest
 plot_cities =
   allcities_proptest %>% 
-  ggplot(aes(fct_reorder(city_state, estimate), estimate)) +
+  ggplot(aes(fct_reorder(city_state, homicide_estimate), homicide_estimate)) +
   geom_point() +
   geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
   labs(
