@@ -81,11 +81,10 @@ allcities_proptest =
   partial_table %>%
   mutate(homicide_CI = map2(.x = total_unsolved, .y = total, ~prop.test(x = .x, n = .y)$conf.int)) %>%
   mutate(homicide_estimate = map2(.x = total_unsolved, .y = total, ~prop.test(x = .x, n = .y)$estimate)) %>%
-  mutate(homicide_estimate = str_replace(homicide_estimate, "c(p = ", ""))
+
 
   unnest()
 
-colnames(allcities_proptest)
 plot_cities = 
   allcities_proptest %>%
   ggplot(aes(city_state, homicide_estimate, color = city_state, group = city_state)) + geom_point() + geom_line()
