@@ -76,8 +76,7 @@ partial_table = as.data.frame(partial_table)
 allcities_proptest = 
   partial_table %>%
   na.omit(partial_table) %>%
-  mutate(homicide_prop = map2(.x = total_unsolved, .y = total, ~prop.test(x = .x, n = .y))) %>%
-  unnest()
+  mutate(homicide_prop = map2(.x = total_unsolved, .y = total, ~prop.test(x = .x, n = .y))) 
 allcities_proptest
 plot_cities =
   allcities_proptest %>% 
