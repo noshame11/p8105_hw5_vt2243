@@ -6,7 +6,7 @@ output: github_document
 ---
 
 ```{r Problem 1, setup, echo = FALSE, message = FALSE, warning = FALSE, error = FALSE}
-library(tidyverse, rvest)
+library(tidyverse)
 library(janitor)
 library(dplyr, purrr, ggplot)
 library(data.table)
@@ -23,6 +23,7 @@ complete
 gather(complete, key = week, value = obs, week1:week8) %>%
 ggplot(aes(week, obs, color = armid, group = armid)) + geom_point() + geom_line() + labs(title = "Control vs Experimental, Week 1-8", x = "Week", y = "Observations")
 ```
+It appears that there is a difference between the two Arms in the study. The Experimental Arm has higher levels of observations than the Experimental Arm. 
 ```{r Problem 2}
 library(dplyr)
 library(janitor)
@@ -33,7 +34,6 @@ library(knitr)
 library(reshape2)
 library(tidyverse)
 library(ggplot2)
-library(revest)
 library(stringr)
 hom_data <- read.csv(url("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"))
 hom_data = 
@@ -75,42 +75,22 @@ baltimore_proptest
 ## prop.test = unsolved/total
 partial_table = 
   merge(dispo, unsolved, by = "city_state", na.rm = TRUE, all = T) %>%
-  filter(city_state != "Tulsa,AL")
+  filter(city_state != "Tulsa,AL") %>%
+  unnest()
 partial_table = as.data.frame(partial_table)
 allcities_proptest = 
   partial_table %>%
   mutate(homicide_CI = map2(.x = total_unsolved, .y = total, ~prop.test(x = .x, n = .y)$conf.int)) %>%
-  mutate(homicide_estimate = map2(.x = total_unsolved, .y = total, ~prop.test(x = .x, n = .y)$estimate)) %>%
-
-
-  unnest()
-
-plot_cities = 
-  allcities_proptest %>%
-  ggplot(aes(city_state, homicide_estimate, color = city_state, group = city_state)) + geom_point() + geom_line()
-plot_cities
-
-na.omit(partial_table) %>%
-  
-broom::tidy(allcities_proptest) 
-  select(estimate, conf.low, conf.high) %>%
-  
-map_chr(allcities_proptest, typeof) %>% table()
-  unnest(allcities_proptest, homicide_prop, .drop = FALSE)
-allcities_proptest
-plot_cities =
-  allcities_proptest %>% 
-  ggplot(aes(fct_reorder(city_state, homicide_estimate), homicide_estimate)) +
-  geom_point() +
-  geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
-  labs(
-    title = "Estimates and CIs for All Cities",
-    x = "City",
-    y = "Estimates"
-  )  +
-  theme(axis.text.x = element_text(angle = 90)) 
-plot_cities
-
+  mutate(homicide_estimate = map2(.x = total_unsolved, .y = total, ~prop.test(x = .x, n = .y)$estimate)) 
+## plot_cities = 
+##  allcities_proptest %>%
+##  ggplot(allcities_proptest, aes(x = city_state, y = homicide_estimate)) + geom_point() + geom_line() + geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
+##  labs(
+##    title = "Estimates and CIs for All Cities",
+##    x = "City",
+##    y = "Estimates"
+##  )  +
+##  theme(axis.text.x = element_text(angle = 90)) 
+## plot_cities
 ```
-
-
+The raw data shows 15 columns and over 52,000 rows of entries. The raw data contains public data of homicides including names, city of death, age, sex, etc. 
